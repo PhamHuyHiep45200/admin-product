@@ -50,7 +50,7 @@ const getInfo = async ()=>{
 }
 
 onMounted(()=>{
-  getInfo()
+  // getInfo()
 })
 
 provide("startLoading", startLoading);
