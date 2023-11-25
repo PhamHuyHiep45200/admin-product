@@ -38,15 +38,19 @@ const router = useRouter();
 const menu = [
   {
     path: "/dashboard",
-    name: "dashboard",
+    name: "Dashboard",
   },
   {
     path: "/category",
-    name: "category",
+    name: "Category",
   },
   {
     path: "/product",
-    name: "product",
+    name: "Product",
+  },
+  {
+    path: "/news",
+    name: "News",
   },
 ];
 
