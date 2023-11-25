@@ -5,8 +5,15 @@
       <a-button @click="showModal" type="primary"> Thêm tin tức </a-button>
     </div>
     <div>
-      <NewsTable @open-update="openUpdate($event)" />
+      <ItemNews
+        v-for="post in listNews"
+        :key="post.id"
+        :post="post"
+        @delete-news="deleteNew($event)"
+        @open-update="openUpdate($event)"
+      />
       <ModalNews
+        ref="modalNews"
         :show="show"
         :title="title"
         :buttonText="buttonText"
@@ -21,11 +28,18 @@
 </template>
 
 <script setup>
-import NewsTable from "../components/NewsTable.vue";
-import ModalNews from "../components/ModalNews.vue";
-import { getAllNews, createNews } from "../request/news";
-import { ref,reactive,  onBeforeMount } from "vue";
+import ModalNews from "../components/news/ModalNews.vue";
+import ItemNews from "../components/news/ItemNews.vue";
+import {
+  getAllNews,
+  createNews,
+  deleteNews,
+  updateNews,
+} from "../request/news";
+import { ref, reactive, inject, onBeforeMount } from "vue";
 import { message } from "ant-design-vue";
+const modalNews = ref(null);
+const user = inject("user");
 const show = ref(false);
 const title = ref("");
 const buttonText = ref("");
@@ -33,8 +47,7 @@ const listNews = ref("");
 const mode = ref("");
 const formState = reactive({
   titleNews: "",
-  editorNews: "<p>Hello CKEditor!</p>",
-  authorNews: "QuocTV",
+  editorNews: "",
 });
 
 const showModal = () => {
@@ -44,32 +57,73 @@ const showModal = () => {
   mode.value = "create";
 };
 onBeforeMount(() => {
-  // getAll();
+  getAll();
 });
-const getAll = () => {
-  listNews = getAllNews();
-  console.log(listNews);
+const getAll = async () => {
+  const res = await getAllNews();
+  listNews.value = res?.data?.data;
 };
-const create = (data) => {
-  console.log(data);
+const create = async (data) => {
+  try {
+    const res = await createNews({
+      title: data.titleNews,
+      content: data.editorNews,
+      author: user?.value?.username,
+      publishedAt: new Date(),
+    });
+    if (res?.status == 200) {
+      successMes(res.data.success);
+      cancel();
+      getAll();
+    }
+  } catch (error) {
+    errorMes("Đã có lỗi xảy ra");
+  }
 };
-const update = (data) => {
-  console.log(data);
+const update = async (data) => {
+  try {
+    const res = await updateNews(data.id, {
+      title: data.titleNews,
+      content: data.editorNews,
+    });
+    if (res?.status == 200) {
+      successMes(res.data.success);
+      cancel();
+      getAll();
+    }
+  } catch (error) {
+    errorMes("Đã có lỗi xảy ra");
+  }
+};
+const deleteNew = async (id) => {
+  try {
+    const res = await deleteNews(id);
+    if (res?.status == 200) {
+      successMes(res.data.success);
+      cancel();
+      getAll();
+    }
+  } catch (error) {
+    errorMes("Đã có lỗi xảy ra");
+  }
 };
 const cancel = () => {
   show.value = false;
 };
-const openUpdate = (id) => {
+
+const openUpdate = (data) => {
   title.value = "Cập nhật tin tức";
   buttonText.value = "Cập nhật";
   show.value = true;
   mode.value = "update";
-  formState.editorNews = "<p>Hello CKEditor! Update</p>";
+  formState.id = data._id;
+  formState.titleNews = data.title;
+  formState.editorNews = data.content;
 };
-const success = (mes) => {
+const successMes = (mes) => {
   message.success(mes);
 };
-const error = (mes) => {
+const errorMes = (mes) => {
   message.error(mes);
 };
 </script>

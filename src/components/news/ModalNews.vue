@@ -23,13 +23,6 @@
             autocomplete="off"
           />
         </a-form-item>
-        <a-form-item has-feedback label="Tác giả" name="authorNews">
-          <a-input
-            v-model:value="formState.authorNews"
-            type="text"
-            autocomplete="off"
-          />
-        </a-form-item>
         <a-form-item label="Nội dung tin tức" name="editorNews">
           <ckeditor :editor="editor" v-model="formState.editorNews" />
         </a-form-item>
@@ -51,7 +44,6 @@ import { ref, reactive, watch } from "vue";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 
 const editor = ref(ClassicEditor);
-const title = ref("Thêm tin tức");
 const props = defineProps({
   show: [Boolean],
   title: [String],
@@ -76,18 +68,6 @@ const rules = {
       trigger: "blur",
     },
   ],
-  authorNews: [
-    {
-      required: true,
-      message: "Vui lòng điền trường này",
-      trigger: "change",
-    },
-    {
-      min: 2,
-      message: "Số lương kí tự phải lớn hơn 2",
-      trigger: "blur",
-    },
-  ],
   editorNews: [
     {
       required: true,
@@ -95,7 +75,7 @@ const rules = {
       trigger: "change",
     },
     {
-      min: 50,
+      min: 10,
       message: "Số lương kí tự phải lớn hơn 50",
       trigger: "blur",
     },
