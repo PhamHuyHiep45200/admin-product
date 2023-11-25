@@ -41,7 +41,9 @@ const formState = reactive({
 const onFinish = async (values) => {
    try {
     const {data} = await signIn(values)
+    console.log(data)
     localStorage.setItem('token', data.refreshToken)
+    localStorage.setItem('id', data.user._id)
     router.push('/')
    } catch (error) {
       if(error.response.status === 400) {

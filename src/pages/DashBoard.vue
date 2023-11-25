@@ -1,13 +1,15 @@
 <template>
   <div>
+    {{ user?.username }}
     <ckeditor :editor="editor" v-model="editorData" @ready="ready" />
   </div>
 </template>
 
 <script setup>
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { ref, watchEffect } from "vue";
+import { inject, ref, watchEffect } from "vue";
 
+const user = inject('user')
 const editor = ref(ClassicEditor);
 const editorData = ref("<p>Hello CKEditor!</p>");
 

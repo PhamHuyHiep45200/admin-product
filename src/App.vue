@@ -21,6 +21,7 @@ const listRouteAuth = ["/login"];
 
 const loading = ref(false);
 const router = useRouter();
+const user = ref()
 const indicator = h(LoadingOutlined, {
   style: {
     fontSize: "50px",
@@ -42,17 +43,20 @@ const routerAuth = computed(() => {
 
 const getInfo = async ()=>{
   try {
-    const {data} = await getMe()
-    console.log(data)
+    const {data} = await getMe({
+      id: localStorage.getItem('id')
+    })
+    user.value = data.data
   } catch (error) {
     console.log(error)
   }
 }
 
 onMounted(()=>{
-  // getInfo()
+  getInfo()
 })
 
 provide("startLoading", startLoading);
 provide("stopLoading", stopLoading);
+provide("user", user);
 </script>
