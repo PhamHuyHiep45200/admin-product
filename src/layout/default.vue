@@ -51,6 +51,14 @@ const menu = [
   {
     path: "/news",
     name: "News",
+  }
+  ,  {
+    path: "/brand",
+    name: "Brand",
+  },
+  {
+    path: "/collection",
+    name: "Collection",
   },
 ];
 
