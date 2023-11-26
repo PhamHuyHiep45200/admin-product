@@ -5,13 +5,18 @@
       <a-button @click="showModal" type="primary"> Thêm thương hiệu </a-button>
     </div>
     <div>
-      <BrandTable :data="listData" @open-update="openUpdate($event)" />
+      <BrandTable
+        :data="listData"
+        @open-update="openUpdate($event)"
+        @delete-brand="deleteBrand($event)"
+      />
       <BrandModal
         :show="show"
         :title="title"
         :buttonText="buttonText"
         :mode="mode"
         :formState="formState"
+        :data="listData"
         @cancel="cancel()"
         @create-record="create($event)"
         @update-record="update($event)"
@@ -25,14 +30,15 @@ import BrandTable from "../components/BrandTable.vue";
 import BrandModal from "../components/BrandModal.vue";
 import { ref, reactive, onBeforeMount } from "vue";
 import { message } from "ant-design-vue";
+import * as ApiBrand from "../request/brand.js";
 const show = ref(false);
 const title = ref("");
 const buttonText = ref("");
 const listData = ref([]);
 const mode = ref("");
 const formState = reactive({
-  name: "Gucci",
-  position: 1,
+  name: "",
+  position: "",
 });
 
 const showModal = () => {
@@ -42,31 +48,66 @@ const showModal = () => {
   mode.value = "create";
 };
 onBeforeMount(() => {
-  // getAll();
+  getAll();
 });
-const getAll = () => {
-  console.log(listData);
+const getAll = async () => {
+  const res = await ApiBrand.getAll();
+  listData.value = res?.data?.data;
 };
-const create = (data) => {
-  console.log(data);
+const create = async (data) => {
+  try {
+    const res = await ApiBrand.createBrand({
+      name: data.name,
+      position: data.position,
+    });
+    successMes(res.data.success);
+    cancel();
+    getAll();
+  } catch (error) {
+    errorMes("Đã có lỗi xảy ra");
+  }
 };
-const update = (data) => {
-  console.log(data);
+const update = async (data) => {
+  try {
+    const res = await ApiBrand.updateBrand(data?.id,{
+      name: data.name,
+      position: data.position,
+    });
+    successMes(res.data.success);
+    cancel();
+    getAll();
+  } catch (error) {
+    errorMes("Đã có lỗi xảy ra");
+  }
+};
+const deleteBrand = async (id) => {
+  try {
+    const res = await ApiBrand.deleteBrand(id);
+    if (res?.status == 200) {
+      successMes(res.data.success);
+      cancel();
+      getAll();
+    }
+  } catch (error) {
+    errorMes("Đã có lỗi xảy ra");
+  }
 };
 const cancel = () => {
   show.value = false;
 };
-const openUpdate = (id) => {
+const openUpdate = (data) => {
   title.value = "Cập nhật thương hiệu";
   buttonText.value = "Cập nhật";
   show.value = true;
   mode.value = "update";
-  formState.name = "Dior";
+  formState.id = data._id;
+  formState.name = data.name;
+  formState.position = data.position;
 };
-const success = (mes) => {
+const successMes = (mes) => {
   message.success(mes);
 };
-const error = (mes) => {
+const errorMes = (mes) => {
   message.error(mes);
 };
 </script>

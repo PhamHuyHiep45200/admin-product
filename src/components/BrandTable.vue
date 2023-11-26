@@ -3,10 +3,10 @@
     <template #bodyCell="{ column, record }">
       <template v-if="column.key === 'action'">
         <span>
-          <a-button class="bg-orange-500" @click="update(record.id)"
+          <a-button class="bg-orange-500" @click="update(record)"
             >Cập nhật</a-button
           >
-          <a-button class="bg-red-500" @click="showDeleteConfirm(1)"
+          <a-button class="bg-red-500" @click="showDeleteConfirm(record._id)"
             >Xóa</a-button
           >
         </span>
@@ -18,17 +18,12 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
 import { createVNode } from "vue";
 import { Modal } from "ant-design-vue";
-const emit = defineEmits(["open-update"]);
+const emit = defineEmits(["open-update", "delete-brand"]);
 const props = defineProps({
   data: [Array, Object],
 });
 
 const columns = [
-  {
-    title: "STT",
-    dataIndex: "id",
-    key: "id",
-  },
   {
     title: "Tên",
     dataIndex: "name",
@@ -44,33 +39,7 @@ const columns = [
     key: "action",
   },
 ];
-const data = [
-  {
-    id: "1",
-    name: "John Brown",
-    position: 32,
-  },
-  {
-    id: "2",
-    name: "John Brown",
-    position: 32,
-  },
-  {
-    id: "3",
-    name: "John Brown",
-    position: 32,
-  },
-  {
-    id: "4",
-    name: "John Brown",
-    position: 32,
-  },
-  {
-    id: "5",
-    name: "John Brown",
-    position: 32,
-  },
-];
+
 const update = (id) => {
   emit("open-update", id);
 };
@@ -82,7 +51,7 @@ const showDeleteConfirm = (id) => {
     okType: "danger",
     cancelText: "Hủy",
     onOk() {
-      console.log("OK" + id);
+      emit("delete-brand", id);
     },
     onCancel() {},
   });

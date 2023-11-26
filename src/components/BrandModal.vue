@@ -22,7 +22,7 @@
               autocomplete="off"
             />
           </a-form-item>
-          <a-form-item has-feedback label="position" name="position">
+          <a-form-item has-feedback label="Position" name="position">
             <a-input
               v-model:value="formState.position"
               type="text"
@@ -57,41 +57,19 @@
   const open = ref(false);
   const formRef = ref();
   const rules = {
-    titleNews: [
+    name: [
       {
         required: true,
         message: "Vui lòng điền trường này",
         trigger: "change",
-      },
-      {
-        min: 2,
-        message: "Số lương kí tự phải lớn hơn 2",
-        trigger: "blur",
-      },
+      }
     ],
-    authorNews: [
+    position: [
       {
         required: true,
         message: "Vui lòng điền trường này",
         trigger: "change",
-      },
-      {
-        min: 2,
-        message: "Số lương kí tự phải lớn hơn 2",
-        trigger: "blur",
-      },
-    ],
-    editorNews: [
-      {
-        required: true,
-        message: "Vui lòng điền trường này",
-        trigger: "change",
-      },
-      {
-        min: 50,
-        message: "Số lương kí tự phải lớn hơn 50",
-        trigger: "blur",
-      },
+      }
     ],
   };
   const onSubmit = () => {
