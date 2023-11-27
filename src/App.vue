@@ -3,7 +3,7 @@
   <Layout v-else>
     <div
       v-if="loading"
-      class="fixed inset-0 flex justify-center items-center bg-[rgba(0,0,0,0.3)]"
+      class="fixed inset-0 z-[9999] flex justify-center items-center bg-[rgba(0,0,0,0.3)]"
     >
       <a-spin :indicator="indicator" />
     </div>

@@ -7,7 +7,7 @@
           <span class="ml-2 translate-y-[15%]">{{ post.author }}</span>
         </a-row>
         <p class="mt-2">
-          {{ moment(String(post.publishedAt)).format("DD/MM/YYYY hh:mm") }}
+          {{ moment(String(post.publishedAt)).fromNow() }}
         </p>
       </a-col>
 
