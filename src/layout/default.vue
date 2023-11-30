@@ -60,6 +60,10 @@ const menu = [
     path: "/collection",
     name: "Collection",
   },
+  {
+    path: "/order",
+    name: "Order",
+  },
 ];
 
 const setKeyManu = () => {
