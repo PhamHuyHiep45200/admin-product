@@ -9,6 +9,8 @@ import Login from "../pages/Login.vue";
 import News from '../pages/News.vue'
 import Brand from '../pages/Brand.vue'
 import Collection from '../pages/Collection.vue'
+import Order from '../pages/Order.vue'
+
 
 
 const routes = [
@@ -24,6 +26,7 @@ const routes = [
   { path: "/news", component: News },
   { path: "/brand", component: Brand },
   { path: "/collection", component: Collection },
+  { path: "/order", component: Order },
 ];
 
 const router = createRouter({
