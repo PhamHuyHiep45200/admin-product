@@ -1,8 +1,9 @@
 import request from ".";
 
-export async function getAllNews() {
+export async function getAllNews(params) {
     return request(`/news/get_all`, {
         method: "GET",
+        params
     });
 }
 export async function getAllPublished() {

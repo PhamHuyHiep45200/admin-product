@@ -1,6 +1,12 @@
 import request from ".";
 
-export async function getAll() {
+export async function getAll(params) {
+    return request(`/collection/get_all`, {
+        method: "GET",
+        params
+    });
+}
+export async function getAllCollection() {
     return request(`/collection/get_all`, {
         method: "GET",
     });

@@ -1,7 +1,7 @@
 <template>
   <div>
     <a-button type="primary" @click="addProduct">add</a-button>
-    <Product />
+    <Product :data="products" />
   </div>
 </template>
 
@@ -14,4 +14,5 @@ const router = useRouter();
 const addProduct = () => {
   router.push("/add-product");
 };
+
 </script>

@@ -22,13 +22,21 @@
         @update-record="update($event)"
       />
     </div>
+    <div class="mt-10 text-center">
+      <a-pagination
+        v-model:current="pagination.page"
+        :pageSize="pagination.limit"
+        :total="pagination.total"
+        show-less-items
+      />
+    </div>
   </div>
 </template>
 
 <script setup>
 import BrandTable from "../components/BrandTable.vue";
 import BrandModal from "../components/BrandModal.vue";
-import { ref, reactive, onBeforeMount } from "vue";
+import { ref, reactive, onBeforeMount, watch } from "vue";
 import { message } from "ant-design-vue";
 import * as ApiBrand from "../request/brand.js";
 const show = ref(false);
@@ -40,6 +48,11 @@ const formState = reactive({
   name: "",
   position: "",
 });
+const pagination = ref({
+  page: 1,
+  limit: 5,
+  total: 0,
+});
 
 const showModal = () => {
   title.value = "Thêm thương hiệu";
@@ -47,11 +60,20 @@ const showModal = () => {
   show.value = true;
   mode.value = "create";
 };
+watch(
+  () => pagination.value.page,
+  () => {
+    getAll();
+  }
+);
 onBeforeMount(() => {
   getAll();
 });
 const getAll = async () => {
-  const res = await ApiBrand.getAll();
+  const res = await ApiBrand.getAll({
+    limit: pagination.value.limit,
+    page: pagination.value.page,
+  });
   listData.value = res?.data?.data;
 };
 const create = async (data) => {

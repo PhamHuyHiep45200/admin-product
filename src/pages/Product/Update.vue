@@ -92,9 +92,74 @@
         <a-form-item label="Description" name="description">
           <ckeditor :editor="editor" v-model="formState.description" />
         </a-form-item>
-
+        <div class="mb-[5px]">Variant</div>
+        <div class="flex flex-col">
+          <a-space
+            v-for="(variant, index) in formState.variants"
+            :key="variant.key"
+          >
+            <a-form-item
+              :name="['variants', index, 'colorId']"
+              :rules="{
+                required: true,
+                message: 'color can not be null',
+                trigger: 'change',
+              }"
+            >
+              <a-select
+                v-model:value="variant.colorId"
+                show-search
+                size="large"
+                class="min-w-[150px]"
+                placeholder="Select a color"
+                :options="color"
+                :filter-option="filterOption"
+              ></a-select>
+            </a-form-item>
+            <a-form-item
+              :name="['variants', index, 'sizeId']"
+              :rules="{
+                required: true,
+                message: 'size can not be null',
+                trigger: 'change',
+              }"
+            >
+              <a-select
+                v-model:value="variant.sizeId"
+                show-search
+                size="large"
+                class="min-w-[150px]"
+                placeholder="Select a size"
+                :options="size"
+                :filter-option="filterOption"
+              ></a-select>
+            </a-form-item>
+            <a-form-item
+              :name="['variants', index, 'quantity']"
+              :rules="{
+                required: true,
+                message: 'quantity can not be null',
+                trigger: 'change',
+              }"
+            >
+              <a-input-number
+                v-model:value="variant.quantity"
+                size="large"
+                placeholder="quantity"
+              />
+            </a-form-item>
+            <MinusCircleOutlined
+              v-if="index > 0"
+              class="dynamic-delete-button"
+              @click="removeVariant(variant.key)"
+            />
+          </a-space>
+        </div>
         <a-form-item>
-          <a-button type="primary" html-type="submit">Add Product</a-button>
+          <a-button size="large" @click="addVariant"> + variant </a-button>
+        </a-form-item>
+        <a-form-item>
+          <a-button type="primary" html-type="submit">Update Product</a-button>
         </a-form-item>
       </a-form>
     </div>
@@ -103,14 +168,26 @@
 
 <script setup>
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
-import { PlusOutlined, LoadingOutlined } from "@ant-design/icons-vue";
+import {
+  PlusOutlined,
+  LoadingOutlined,
+  MinusCircleOutlined,
+} from "@ant-design/icons-vue";
 import { uploadImage } from "../../request/upload.api.js";
 import { getAll } from "../../request/brand";
 import { getAllCategory } from "../../request/category.api";
 import { getAllCollection } from "../../request/collection";
-import { onMounted, ref } from "vue";
-import { createProduct } from "../../request/product.api";
+import { inject, onBeforeMount, onMounted, ref } from "vue";
+import {
+  createProduct,
+  getAllColor,
+  getAllSize,
+  getProductById,
+  updateProduct,
+} from "../../request/product.api";
 import { useRouter } from "vue-router";
+const startLoading = inject("startLoading");
+const stopLoading = inject("stopLoading");
 const editor = ref(ClassicEditor);
 const formState = ref({
   name: "",
@@ -120,13 +197,25 @@ const formState = ref({
   collectionId: "",
   price: 0,
   images: [],
+  variants: [
+    {
+      sizeId: null,
+      colorId: null,
+      quantity: null,
+      key: Date.now(),
+    },
+  ],
 });
 const loading = ref(false);
 const brand = ref([]);
 const category = ref([]);
 const collection = ref([]);
-const router = useRouter()
+const color = ref([]);
+const size = ref([]);
+const router = useRouter();
+const { id } = router.currentRoute.value.params;
 const onFinish = async (values) => {
+  startLoading();
   const data = {
     ...values,
     images: values.images.map((img) => ({
@@ -135,13 +224,26 @@ const onFinish = async (values) => {
     })),
   };
   try {
-    await createProduct(data);
-    router.push({
-      name: '/product'
-    })
+    await updateProduct(id, data);
+    router.push("/product");
   } catch (error) {
     console.log(error);
+  } finally {
+    stopLoading();
   }
+};
+const addVariant = () => {
+  formState.value.variant.push({
+    color: "",
+    size: "",
+    quantity: 0,
+    key: Date.now(),
+  });
+};
+const removeVariant = (key) => {
+  formState.value.variants = formState.value.variants.filter(
+    (e) => e.key !== key
+  );
 };
 const filterOption = (input, option) => {
   return option.value.toLowerCase().indexOf(input.toLowerCase()) >= 0;
@@ -209,9 +311,69 @@ const getAllBrand = async () => {
   }
 };
 
-onMounted(() => {
+const getColor = async () => {
+  try {
+    const { data } = await getAllColor();
+    color.value = data.data.map((e) => ({
+      label: e.name,
+      value: e._id,
+    }));
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getSize = async () => {
+  try {
+    const { data } = await getAllSize();
+    size.value = data.data.map((e) => ({
+      label: e.name,
+      value: e._id,
+    }));
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+const getProductDetail = async () => {
+  startLoading();
+  try {
+    const { data } = await getProductById(id);
+    formState.value = {
+      ...formState.value,
+      name: data.data.product.name,
+      description: data.data.product.description,
+      category: data.data.product.category?._id,
+      brand: data.data.product.brand?._id,
+      collectionId: data.data.product.collectionId?._id,
+      price: data.data.product.price,
+      images: data.data.product.images.map((image, index) => ({
+        uid: image.id,
+        url: image.src,
+        status: "success",
+        name: "",
+      })),
+      variants: data.data.variants.map((variant, index) => ({
+        sizeId: variant.sizeId?._id,
+        colorId: variant.colorId?._id,
+        key: variant?._id,
+        quantity: variant?.quantity,
+      })),
+    };
+  } catch (error) {
+    console.log(error);
+  } finally {
+    stopLoading();
+  }
+};
+onBeforeMount(() => {
   getAllBrand();
   getAllCategoryData();
   getAllCollectionData();
+  getColor();
+  getSize();
+});
+onMounted(() => {
+  getProductDetail();
 });
 </script>

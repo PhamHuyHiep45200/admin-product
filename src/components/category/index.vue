@@ -1,6 +1,6 @@
 <template>
   <div>
-    <div class="text-right mb-5">
+    <div class="text-left mb-5">
       <a-button type="primary" @click="showModal">Add</a-button>
     </div>
     <div class="flex justify-center">
@@ -19,7 +19,11 @@
               class="absolute right-0 top-0 bottom-0 w-[1px] bg-[#dadada]"
               v-if="!e.childrenData.length"
             ></div>
-            <InfoCategory :info="e" :openUpdate="openUpdate" />
+            <InfoCategory
+              :refresh="getAllDataCategory"
+              :info="e"
+              :openUpdate="openUpdate"
+            />
           </div>
           <div
             class="text-center flex-1 border-l max-h-[200px] overflow-y-auto"
@@ -31,6 +35,7 @@
             >
               <InfoCategory
                 type="children"
+                :refresh="getAllDataCategory"
                 :info="child"
                 :openUpdate="openUpdate"
               />
@@ -40,7 +45,12 @@
       </div>
     </div>
     <div class="mt-10 text-center">
-      <a-pagination v-model:current="current" :total="50" show-less-items />
+      <a-pagination
+        v-model:current="pagination.page"
+        :pageSize="pagination.limit"
+        :total="pagination.total"
+        show-less-items
+      />
     </div>
 
     <a-modal
@@ -94,7 +104,7 @@
   </div>
 </template>
 <script setup>
-import { inject, onMounted, ref } from "vue";
+import { inject, onMounted, ref, watch } from "vue";
 import {
   createCategory,
   getAllCategory,
@@ -102,10 +112,14 @@ import {
 } from "../../request/category.api";
 import InfoCategory from "./InfoCategory.vue";
 
+const pagination = ref({
+  page: 1,
+  limit: 5,
+  total: 0,
+});
 const startLoading = inject("startLoading");
 const stopLoading = inject("stopLoading");
 const open = ref(false);
-const current = ref(2);
 const updateCate = ref({
   status: false,
   key: "",
@@ -177,8 +191,10 @@ const filterOption = (input, option) => {
 const getAllDataCategory = async () => {
   startLoading();
   try {
-    const { data } = await getAllCategory();
-    console.log(data);
+    const { data } = await getAllCategory({
+      limit: pagination.value.limit,
+      page: pagination.value.page,
+    });
     options.value = data.data.map((e) => ({
       label: e.name,
       value: e._id,
@@ -189,12 +205,24 @@ const getAllDataCategory = async () => {
       position: e.position,
       childrenData: e.children,
     }));
+    console.log(data.total);
+    pagination.value = {
+      ...pagination.value,
+      total: data.total,
+    };
   } catch (error) {
     console.log(error);
   } finally {
     stopLoading();
   }
 };
+
+watch(
+  () => pagination.value.page,
+  () => {
+    getAllDataCategory();
+  }
+);
 
 onMounted(() => {
   getAllDataCategory();
