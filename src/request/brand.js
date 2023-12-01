@@ -1,8 +1,9 @@
 import request from ".";
 
-export async function getAll() {
+export async function getAll(params) {
     return request(`/brand/get_all`, {
         method: "GET",
+        params
     });
 }
 export async function createBrand(data) {

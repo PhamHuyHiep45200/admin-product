@@ -24,6 +24,14 @@
         @update-news="update($event)"
       />
     </div>
+    <div class="mt-10 text-center">
+      <a-pagination
+        v-model:current="pagination.page"
+        :pageSize="pagination.limit"
+        :total="pagination.total"
+        show-less-items
+      />
+    </div>
   </div>
 </template>
 
@@ -36,7 +44,7 @@ import {
   deleteNews,
   updateNews,
 } from "../request/news";
-import { ref, reactive, inject, onBeforeMount } from "vue";
+import { ref, reactive, inject, onBeforeMount, watch } from "vue";
 import { message } from "ant-design-vue";
 const modalNews = ref(null);
 const user = inject("user");
@@ -49,6 +57,11 @@ const formState = reactive({
   titleNews: "",
   editorNews: "",
 });
+const pagination = ref({
+  page: 1,
+  limit: 5,
+  total: 0,
+});
 
 const showModal = () => {
   title.value = "Thêm tin tức";
@@ -56,11 +69,20 @@ const showModal = () => {
   show.value = true;
   mode.value = "create";
 };
+watch(
+  () => pagination.value.page,
+  () => {
+    getAll();
+  }
+);
 onBeforeMount(() => {
   getAll();
 });
 const getAll = async () => {
-  const res = await getAllNews();
+  const res = await getAllNews({
+    limit: pagination.value.limit,
+    page: pagination.value.page,
+  });
   listNews.value = res?.data?.data;
 };
 const create = async (data) => {
