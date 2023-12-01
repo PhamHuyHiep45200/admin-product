@@ -2,6 +2,7 @@
   <a-table
     :columns="columns"
     :data-source="data"
+    :pagination="false"
     class="components-table-demo-nested"
   >
     <template #bodyCell="{ column, record }">

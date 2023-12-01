@@ -1,6 +1,17 @@
 <template>
   <a-table :columns="columns" :data-source="data" :pagination="false">
     <template #bodyCell="{ column, record }">
+      <template v-if="column.key === 'role'">
+        <a-tag color="green">
+          {{
+            record.role == 0
+              ? "Khách hàng"
+              : record.role == 1
+              ? "Nhân viên"
+              : "Admin"
+          }}
+        </a-tag>
+      </template>
       <template v-if="column.key === 'action'">
         <span>
           <a-button class="bg-orange-500" @click="update(record)"
@@ -18,7 +29,7 @@
 import { ExclamationCircleOutlined } from "@ant-design/icons-vue";
 import { createVNode } from "vue";
 import { Modal } from "ant-design-vue";
-const emit = defineEmits(["open-update", "delete-brand"]);
+const emit = defineEmits(["open-update", "delete-user"]);
 const props = defineProps({
   data: [Array, Object],
 });
@@ -26,13 +37,18 @@ const props = defineProps({
 const columns = [
   {
     title: "Tên",
-    dataIndex: "name",
-    key: "name",
+    dataIndex: "username",
+    key: "username",
   },
   {
-    title: "Position",
-    key: "position",
-    dataIndex: "position",
+    title: "Email",
+    key: "email",
+    dataIndex: "email",
+  },
+  {
+    title: "Quyền",
+    key: "role",
+    dataIndex: "role",
   },
   {
     title: "Thao tác",
@@ -51,7 +67,7 @@ const showDeleteConfirm = (id) => {
     okType: "danger",
     cancelText: "Hủy",
     onOk() {
-      emit("delete-brand", id);
+      emit("delete-user", id);
     },
     onCancel() {},
   });

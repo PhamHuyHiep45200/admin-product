@@ -41,6 +41,10 @@ const menu = [
     name: "Dashboard",
   },
   {
+    path: "/user",
+    name: "User",
+  },
+  {
     path: "/category",
     name: "Category",
   },
@@ -51,8 +55,8 @@ const menu = [
   {
     path: "/news",
     name: "News",
-  }
-  ,  {
+  },
+  {
     path: "/brand",
     name: "Brand",
   },
