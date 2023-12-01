@@ -233,7 +233,7 @@ const onFinish = async (values) => {
   }
 };
 const addVariant = () => {
-  formState.value.variant.push({
+  formState.value.variants.push({
     color: "",
     size: "",
     quantity: 0,

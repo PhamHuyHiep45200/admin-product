@@ -8,6 +8,14 @@
         @delete-brand="deleteBrand($event)"
       />
       <div>
+        <div class="mt-10 text-center">
+          <a-pagination
+            v-model:current="pagination.page"
+            :pageSize="pagination.limit"
+            :total="pagination.total"
+            show-less-items
+          />
+        </div>
         <a-modal v-model:open="show" title="Cập nhật" @ok="update">
           <a-form-item label="Trạng thái đơn hàng">
             <a-select
@@ -26,7 +34,7 @@
 
 <script setup>
 import OrderTable from "../components/OrderTable.vue";
-import { ref, reactive, onBeforeMount } from "vue";
+import { ref, reactive, onBeforeMount, watch } from "vue";
 import { message } from "ant-design-vue";
 import * as ApiOrder from "../request/order.js";
 const show = ref(false);
@@ -34,12 +42,20 @@ const listData = ref([]);
 const formState = reactive({
   id: "",
 });
+const pagination = ref({
+  page: 1,
+  limit: 5,
+  total: 0,
+});
 const status = ref(0);
 onBeforeMount(() => {
   getAll();
 });
 const getAll = async () => {
-  const res = await ApiOrder.getAll();
+  const res = await ApiOrder.getAll({
+    limit: pagination.value.limit,
+    page: pagination.value.page,
+  });
   listData.value = res?.data?.data;
 };
 const handleChange = (value) => {
@@ -58,6 +74,12 @@ const update = async () => {
     errorMes("Đã có lỗi xảy ra");
   }
 };
+watch(
+  () => pagination.value.page,
+  () => {
+    getAll();
+  }
+);
 const cancel = () => {
   show.value = false;
 };

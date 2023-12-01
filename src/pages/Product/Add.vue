@@ -78,7 +78,13 @@
                 <plus-outlined v-else></plus-outlined>
               </div>
             </label>
-            <input type="file" hidden id="image" @input="upload" />
+            <input
+              multiple="multiple"
+              type="file"
+              hidden
+              id="image"
+              @input="upload"
+            />
             <a-upload
               v-model:file-list="formState.images"
               list-type="picture-card"
@@ -104,7 +110,7 @@
 <script setup>
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import { PlusOutlined, LoadingOutlined } from "@ant-design/icons-vue";
-import { uploadImage } from "../../request/upload.api.js";
+import { uploadImage, uploadImages } from "../../request/upload.api.js";
 import { getAll } from "../../request/brand";
 import { getAllCategory } from "../../request/category.api";
 import { getAllCollection } from "../../request/collection";
@@ -125,7 +131,7 @@ const loading = ref(false);
 const brand = ref([]);
 const category = ref([]);
 const collection = ref([]);
-const router = useRouter()
+const router = useRouter();
 const onFinish = async (values) => {
   const data = {
     ...values,
@@ -136,9 +142,7 @@ const onFinish = async (values) => {
   };
   try {
     await createProduct(data);
-    router.push({
-      name: '/product'
-    })
+    router.push("/product");
   } catch (error) {
     console.log(error);
   }
@@ -149,18 +153,24 @@ const filterOption = (input, option) => {
 const upload = async (e) => {
   loading.value = true;
   const formData = new FormData();
-  formData.append("image", e.target.files[0]);
+  const files = e.target.files;
+  for (let i = 0; i < files.length; i++) {
+    formData.append("images", files[i]);
+  }
+  formData.append("folderName", "banners");
   try {
-    const { data } = await uploadImage(formData);
-    const img_upload = {
-      uid: data.data.id,
-      url: data.data.src,
-      status: "success",
-      name: "",
-    };
+    const { data } = await uploadImages(formData);
     formState.value = {
       ...formState.value,
-      images: [...formState.value.images, img_upload],
+      images: [
+        ...formState.value.images,
+        ...data.data.map((img) => ({
+          uid: img.id,
+          url: img.src,
+          status: "success",
+          name: "",
+        })),
+      ],
     };
   } catch (error) {
     console.log(error);
@@ -168,6 +178,29 @@ const upload = async (e) => {
     loading.value = false;
   }
 };
+
+// const upload = async (e) => {
+//   loading.value = true;
+//   const formData = new FormData();
+//   formData.append("image", e.target.files[0]);
+//   try {
+//     const { data } = await uploadImage(formData);
+//     const img_upload = {
+//       uid: data.data.id,
+//       url: data.data.src,
+//       status: "success",
+//       name: "",
+//     };
+//     formState.value = {
+//       ...formState.value,
+//       images: [...formState.value.images, img_upload],
+//     };
+//   } catch (error) {
+//     console.log(error);
+//   } finally {
+//     loading.value = false;
+//   }
+// };
 
 const getAllCategoryData = async () => {
   try {
