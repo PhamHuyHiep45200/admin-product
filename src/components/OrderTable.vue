@@ -63,8 +63,7 @@
             </span>
           </template>
           <template v-if="column.key === 'product.description'">
-            <span>
-              {{ record.product.description }}
+            <span v-html="record.product.description">
             </span>
           </template>
         </template>

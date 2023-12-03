@@ -1,5 +1,9 @@
 <template>
   <div>
+    <div class="flex space-x-2 justify-end my-5">
+      <a-input class="w-[300px]" placeholder="search ..." v-model:value="search" size="large"/>
+      <a-button size="large" type="primary" @click="searchProduct">search</a-button>
+    </div>
     <a-table :dataSource="products" :columns="columns" :pagination="false">
       <template #bodyCell="{ column, record }">
         <template v-if="column.key === 'image'">
@@ -58,6 +62,7 @@ const router = useRouter()
 const openDelete = ref(false);
 const deleteId = ref('');
 const products = ref([])
+const search = ref('')
 const pagination = ref({
   page: 1,
   limit: 5,
@@ -119,12 +124,20 @@ const actionDelete = async ()=>{
     console.log(error)
   }
 }
+const searchProduct = ()=>{
+  pagination.value = {
+    ...pagination.value,
+    page: 1
+  }
+  getProduct()
+}
 const getProduct = async () =>{
   startLoading()
   try {
     const {data} = await getAllProduct({
       limit: pagination.value.limit,
       page: pagination.value.page,
+      keyword: search.value
     })
     products.value = data.data
   } catch (error) {

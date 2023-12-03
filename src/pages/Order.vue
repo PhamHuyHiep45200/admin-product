@@ -56,7 +56,14 @@ const getAll = async () => {
     limit: pagination.value.limit,
     page: pagination.value.page,
   });
-  listData.value = res?.data?.data;
+  listData.value = res?.data?.data.map((e)=>({
+    ...e,
+    key: e._id,
+    ordersItems: e.ordersItems.map((s)=>({
+      ...s,
+      key: e._id,
+    }))
+  }));
 };
 const handleChange = (value) => {
   status.value = value;
